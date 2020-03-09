@@ -17,7 +17,7 @@ function searchInfoByTicker(ticker){
 
 function getCurrentDataByTicker(ticker){
     const xhr = new XMLHttpRequest();
-    xhr.open('GET', `https://api.tdameritrade.com/v1/arketdata/${ticker}/quotes?apikey=REY6WQ6X1PVAWABH7BURGNZCVOQF7XRT`, false);
+    xhr.open('GET', `https://api.tdameritrade.com/v1/marketdata/${ticker}/quotes?apikey=REY6WQ6X1PVAWABH7BURGNZCVOQF7XRT`, false);
     xhr.setRequestHeader("Content-Type", "application/json");
     xhr.send();
 

@@ -1,58 +1,61 @@
 class Alarm{
     selectorTickers = [];
     alarmSelector = document.querySelector('.ticker-alarm-selector select');
+    targetPrice = document.querySelector('#ticker-target-price');
 
-    // заполнить селект
-    // получить все доступные компании из меню
-    // парсинг исходных и добавление динамачиски созданных
+    addDataToSelect(ticker){
+        let newOption = document.createElement("option");
+        newOption.value = newOption.innerText = ticker;
+        this.alarmSelector.appendChild(newOption);
 
-    //addDataToAlarmSelect
+        this.selectorTickers.push(ticker);
 
-    addData(){
-        console.log('alarmSelector', this.alarmSelector, 'selectorTickers', this.selectorTickers);
-
-        sendNotification('Сколько ТЫЖ программистов нужно чтобы вкрутить лампочку?', { body: 'Только ты!', dir: 'auto' });
+        // обновим селект обертку либы материалайз
+        M.FormSelect.init(this.alarmSelector);
     }
 
-    // обработка создания оповещения
-    // настроить запросы к api раз в час - два на проверку данных, макс 120 запросов в сутки
-    // вывод оповещения
+    setNotification(){
+        if (askPermission()){
+            //const interval = 60*60*1000; // 1 час
+            const interval = 10*1000;
+
+            var lastPrice;
+            var currentAlarm = this;
+            var timerId = setInterval(function () {
+                let targetTicker = currentAlarm.alarmSelector.value;
+                let targetPrice = currentAlarm.targetPrice.value;
+
+                if (isNaN(targetTicker)){
+                    clearInterval(timerId);
+                    alert('Выберите тикер для отслеживания');
+                }
+
+                let trackedData = currentAlarm.trackTargetTicker(targetTicker);
+                let companyName = trackedData.description;
+                lastPrice = trackedData.lastPrice;
+                if (lastPrice >= targetPrice) {
+                    clearInterval(timerId);
+                    new Notification(companyName, { body: `Тикер: ${targetTicker},  цена: ${lastPrice}$.`, dir: 'auto' });
+                }
+            }, interval);
+        } else {
+            alert('HTML Notifications запрещены пользователем')
+        }
+    }
+
+    trackTargetTicker(targetTicker){
+        return getCurrentDataByTicker(targetTicker).shift();
+    }
 }
 
-
-// проверить на гит хаб пейджах
-
-function sendNotification(title, options) {
-// Проверим, поддерживает ли браузер HTML5 Notifications
+function askPermission() {
     if (!("Notification" in window)) {
-        alert('Ваш браузер не поддерживает HTML Notifications, его необходимо обновить.');
-    }
-
-// Проверим, есть ли права на отправку уведомлений
-    else if (Notification.permission === "granted") {
-// Если права есть, отправим уведомление
-        var notification = new Notification(title, options);
-
-        function clickFunc() {
-            alert('Пользователь кликнул на уведомление');
-        }
-
-        notification.onclick = clickFunc;
-    }
-
-// Если прав нет, пытаемся их получить
-    else if (Notification.permission !== 'denied') {
-        Notification.requestPermission(function (permission) {
-// Если права успешно получены, отправляем уведомление
-            if (permission === "granted") {
-                var notification = new Notification(title, options);
-
-            } else {
-                alert('Вы запретили показывать уведомления'); // Юзер отклонил наш запрос на показ уведомлений
-            }
-        });
+        alert('Ваш браузер не поддерживает HTML Notifications.');
+    } else if (Notification.permission === "granted") {
+        return true;
     } else {
-// Пользователь ранее отклонил наш запрос на показ уведомлений
-// В этом месте мы можем, но не будем его беспокоить. Уважайте решения своих пользователей.
+        Notification.requestPermission(function (permission) {
+            return permission === "granted";
+        });
     }
 }
