@@ -10,6 +10,8 @@ class Alarm{
 
     addData(){
         console.log('alarmSelector', this.alarmSelector, 'selectorTickers', this.selectorTickers);
+
+        sendNotification('Сколько ТЫЖ программистов нужно чтобы вкрутить лампочку?', { body: 'Только ты!', dir: 'auto' });
     }
 
     // обработка создания оповещения
