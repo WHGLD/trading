@@ -1,4 +1,4 @@
-class Alarm{
+export class Alarm{
     selectorTickers = [];
     alarmSelector = document.querySelector('.ticker-alarm-selector select');
     targetPrice = document.querySelector('#ticker-target-price');
@@ -14,27 +14,35 @@ class Alarm{
         M.FormSelect.init(this.alarmSelector);
     }
 
+    // @todo:
+    // порядок проверки пермишенов, сейчас почему-то false выдает
+    // назначение оповещений для нескольких тикеров, сейчас только для 1
     setNotification(){
-        if (askPermission()){
+        var currentAlarm = this;
+
+        if (currentAlarm._askPermission()){
+
             //const interval = 60*60*1000; // 1 час
             const interval = 10*1000;
 
-            var lastPrice;
-            var currentAlarm = this;
+            var targetTicker = currentAlarm.alarmSelector.value;
+            var targetPrice = currentAlarm.targetPrice.value;
+
+            if (isNaN(targetTicker)){
+                alert('Выберите тикер для отслеживания');
+                return false;
+            }
+
             var timerId = setInterval(function () {
-                let targetTicker = currentAlarm.alarmSelector.value;
-                let targetPrice = currentAlarm.targetPrice.value;
 
-                if (isNaN(targetTicker)){
-                    clearInterval(timerId);
-                    alert('Выберите тикер для отслеживания');
-                }
+                console.log(targetTicker, targetPrice);
 
-                let trackedData = currentAlarm.trackTargetTicker(targetTicker);
+                let trackedData = currentAlarm._trackTargetTicker(targetTicker);
                 let companyName = trackedData.description;
-                lastPrice = trackedData.lastPrice;
+                let lastPrice = trackedData.lastPrice;
                 if (lastPrice >= targetPrice) {
                     clearInterval(timerId);
+                    console.log(companyName, `Тикер: ${targetTicker},  цена: ${lastPrice}$.`);
                     new Notification(companyName, { body: `Тикер: ${targetTicker},  цена: ${lastPrice}$.`, dir: 'auto' });
                 }
             }, interval);
@@ -43,19 +51,19 @@ class Alarm{
         }
     }
 
-    trackTargetTicker(targetTicker){
+    _trackTargetTicker(targetTicker){
         return getCurrentDataByTicker(targetTicker).shift();
     }
-}
 
-function askPermission() {
-    if (!("Notification" in window)) {
-        alert('Ваш браузер не поддерживает HTML Notifications.');
-    } else if (Notification.permission === "granted") {
-        return true;
-    } else {
-        Notification.requestPermission(function (permission) {
-            return permission === "granted";
-        });
+    _askPermission() {
+        if (!("Notification" in window)) {
+            alert('Ваш браузер не поддерживает HTML Notifications.');
+        } else if (Notification.permission === "granted") {
+            return true;
+        } else {
+            Notification.requestPermission(function (permission) {
+                return permission === "granted";
+            });
+        }
     }
 }

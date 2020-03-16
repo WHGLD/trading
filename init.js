@@ -1,3 +1,10 @@
+import {Alarm} from '/src/alarm.js';
+// import {graph} from '/src/alarm.js';
+// import {menu} from '/src/alarm.js';
+// import {alarm} from '/src/alarm.js';
+
+console.log(Alarm);
+
 document.addEventListener("DOMContentLoaded", function() {
 
     const graph = new Graph();
@@ -35,7 +42,7 @@ document.addEventListener("DOMContentLoaded", function() {
         let tickerInfo = searchInfoByTicker(ticker).shift();
         let tickerCompany = tickerInfo.description.substring(0, 20)+'...';
 
-        // добавляем тикер компании в селект для упоминаний
+        // добавляем тикер компании в селект для notifications
         alarm.addDataToSelect(ticker);
 
         // слушатель для запуска виджета графика акции
