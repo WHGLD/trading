@@ -1,4 +1,4 @@
-import {Alarm} from '/src/alarm.js';
+import {Alarm} from 'src/alarm.js';
 // import {graph} from '/src/alarm.js';
 // import {menu} from '/src/alarm.js';
 // import {alarm} from '/src/alarm.js';
